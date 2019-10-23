@@ -390,10 +390,10 @@ void loop() {
     int contaMuitoDiferenteValorMenor = 0;
     memset(idxMuitoDiferenteValorMenor, -1, PESOS_SIZE);
     for (int i = 0; i < PESOS_SIZE; i++) {
-      if (muitoDiferenteValorMenor == 0.0 && i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
-         muitoDiferenteValorMenor = pesos[i];
+      if (muitoDiferenteValor == 0.0 && i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
+         muitoDiferenteValor = pesos[i];
       }
-      else if ((muitoDiferenteValorMenor * (1 + PORCENTO_CORTE_MENOR)) > pesos[i]) {
+      else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE_MENOR)) > pesos[i]) {
         if (contaMuitoDiferenteValorMenor < (PESOS_SIZE - 1)) {
           idxMuitoDiferenteValorMenor[contaMuitoDiferenteValorMenor++] = i;
         }
