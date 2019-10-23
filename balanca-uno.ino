@@ -14,7 +14,8 @@
 #define QTDE_TEMPO_CICLO 60000
 #define PESO_MINIMO 0.01
 #define PESOS_SIZE 20
-#define PORCENTO_CORTE 0.8
+#define PORCENTO_CORTE_MAIOR 0.8
+#define PORCENTO_CORTE_MENOR 0.2
 
 #define ALTITUDE 530.0 // Altitude of SparkFun's HQ in Boulder, CO. in meters
 
@@ -41,6 +42,7 @@ float units = 0.0;
 int contaPesos = 0;
 float pesos[PESOS_SIZE];
 float muitoDiferenteValor = 0.0; // variável de referencia do cálculo dos 80%
+float muitoDiferenteValorMenor = 0.0; // variável de referencia do cálculo dos 20%
 
 float calibration_factor = -279560.00; //-7050 trabalhei para minha configuração de escala máxima de 440lb
 
@@ -368,7 +370,7 @@ void loop() {
       }
     }
 
-    // descartando valores maiores que 80% que o valor de referencia
+    // descartando valores maiores que 80% do valor de referencia
     int idxMuitoDiferenteValor[PESOS_SIZE];
     int contaMuitoDiferenteValor = 0;
     memset(idxMuitoDiferenteValor, -1, PESOS_SIZE);
@@ -376,9 +378,24 @@ void loop() {
       if (muitoDiferenteValor == 0.0 && i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
          muitoDiferenteValor = pesos[i];
       }
-      else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE)) < pesos[i]) {
+      else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE_MAIOR)) < pesos[i]) {
         if (contaMuitoDiferenteValor < (PESOS_SIZE - 1)) {
           idxMuitoDiferenteValor[contaMuitoDiferenteValor++] = i;
+        }
+      }
+    }
+
+    // descartando valores menores que 20% do valor de referencia
+    int idxMuitoDiferenteValorMenor[PESOS_SIZE];
+    int contaMuitoDiferenteValorMenor = 0;
+    memset(idxMuitoDiferenteValorMenor, -1, PESOS_SIZE);
+    for (int i = 0; i < PESOS_SIZE; i++) {
+      if (muitoDiferenteValorMenor == 0.0 && i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
+         muitoDiferenteValorMenor = pesos[i];
+      }
+      else if ((muitoDiferenteValorMenor * (1 + PORCENTO_CORTE_MENOR)) > pesos[i]) {
+        if (contaMuitoDiferenteValorMenor < (PESOS_SIZE - 1)) {
+          idxMuitoDiferenteValorMenor[contaMuitoDiferenteValorMenor++] = i;
         }
       }
     }
@@ -390,8 +407,19 @@ void loop() {
 
       // Verificando por valores muito diferentes
       bool mustContinue = false;
+      
+      // Maiores que 80%
       for (int j = 0; j < contaMuitoDiferenteValor; j++) {
         if (idxMuitoDiferenteValor[j] == i) {
+          mustContinue = true;
+          break;
+        }
+      }
+      if (mustContinue) continue;
+
+      // Menores que 20%
+      for (int j = 0; j < contaMuitoDiferenteValorMenor; j++) {
+        if (idxMuitoDiferenteValorMenor[j] == i) {
           mustContinue = true;
           break;
         }
