@@ -419,7 +419,7 @@ void loop() {
 
       // Menores que 20%
       for (int j = 0; j < contaMuitoDiferenteValorMenor; j++) {
-        if (idxMuitoDiferenteValor[j] == i) {
+        if (idxMuitoDiferenteValorMenor[j] == i) {
           mustContinue = true;
           break;
         }
