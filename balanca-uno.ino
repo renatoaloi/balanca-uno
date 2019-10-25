@@ -370,16 +370,28 @@ void loop() {
       }
     }
 
+    // depurando valores
+    Serial.print("valores: ");
+    for (int i = 0; i < PESOS_SIZE; i++) {
+      if (i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
+        Serial.print(pesos[i]); 
+        Serial.print(", ");
+      }
+    }
+    Serial.println();
+
     // descartando valores maiores que 80% do valor de referencia
     int idxMuitoDiferenteValor[PESOS_SIZE];
     int contaMuitoDiferenteValor = 0;
     memset(idxMuitoDiferenteValor, -1, PESOS_SIZE);
     for (int i = 0; i < PESOS_SIZE; i++) {
-      if (muitoDiferenteValor == 0.0 && i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
-         muitoDiferenteValor = pesos[i];
+      if (muitoDiferenteValor == 0.0 && i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
+        Serial.print("muitoDiferenteValor1: "); Serial.println(pesos[i]); 
+        muitoDiferenteValor = pesos[i];
       }
       else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE_MAIOR)) < pesos[i]) {
         if (contaMuitoDiferenteValor < (PESOS_SIZE - 1)) {
+          Serial.print("descartando 80%: "); Serial.println(pesos[i]);
           idxMuitoDiferenteValor[contaMuitoDiferenteValor++] = i;
         }
       }
@@ -390,11 +402,13 @@ void loop() {
     int contaMuitoDiferenteValorMenor = 0;
     memset(idxMuitoDiferenteValorMenor, -1, PESOS_SIZE);
     for (int i = 0; i < PESOS_SIZE; i++) {
-      if (muitoDiferenteValor == 0.0 && i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
+      if (muitoDiferenteValor == 0.0 && i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
+         Serial.print("muitoDiferenteValor: "); Serial.println(pesos[i]);
          muitoDiferenteValor = pesos[i];
       }
       else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE_MENOR)) > pesos[i]) {
         if (contaMuitoDiferenteValorMenor < (PESOS_SIZE - 1)) {
+          Serial.print("descartando 20%:"); Serial.println(pesos[i]);
           idxMuitoDiferenteValorMenor[contaMuitoDiferenteValorMenor++] = i;
         }
       }
@@ -419,7 +433,7 @@ void loop() {
 
       // Menores que 20%
       for (int j = 0; j < contaMuitoDiferenteValorMenor; j++) {
-        if (idxMuitoDiferenteValor[j] == i) {
+        if (idxMuitoDiferenteValorMenor[j] == i) {
           mustContinue = true;
           break;
         }
