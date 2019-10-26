@@ -1,3 +1,4 @@
+
 #include <ModbusMaster.h>
 #include <SFE_BMP180.h>
 #include <Wire.h>
@@ -349,6 +350,13 @@ void loop() {
 
   // Executa a média a cada minuto
   if (contaTempoCiclo < millis()) {
+
+    Serial.print("Pesos registrados: ");
+    for (int i = 0; i < contaPesos; i++) {
+      Serial.print(pesos[i], 3);
+      Serial.print(", ");
+    }
+    Serial.println();
 
     // desconsiderando o menor valor
     float menorValor = 9999.0;
