@@ -359,117 +359,125 @@ void loop() {
     Serial.println();
 
     // desconsiderando o menor valor
-    float menorValor = 9999.0;
-    int idxMenorValor = -1;
-    for (int i = 0; i < PESOS_SIZE; i++) {
-      if (pesos[i] < menorValor) {
-        menorValor = pesos[i];
-        idxMenorValor = i;
-      }
+  float menorValor = 9999.0;
+  int idxMenorValor = -1;
+  for (int i = 0; i < contaPesos; i++) {
+    if (pesos[i] < menorValor) {
+      menorValor = pesos[i];
+      idxMenorValor = i;
     }
+  }
 
-    // desconsiderando o maior valor
-    float maiorValor = 0.0;
-    int idxMaiorValor = -1;
-    for (int i = 0; i < PESOS_SIZE; i++) {
-      if (pesos[i] > maiorValor) {
-        maiorValor = pesos[i];
-        idxMaiorValor = i;
-      }
+  // desconsiderando o maior valor
+  float maiorValor = 0.0;
+  int idxMaiorValor = -1;
+  for (int i = 0; i < contaPesos; i++) {
+    if (pesos[i] > maiorValor) {
+      maiorValor = pesos[i];
+      idxMaiorValor = i;
     }
+  }
 
-    // depurando valores
-    Serial.print("valores: ");
-    for (int i = 0; i < PESOS_SIZE; i++) {
-      if (i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
-        Serial.print(pesos[i]); 
-        Serial.print(", ");
-      }
+  // depurando valores
+  Serial.print("valores: ");
+  for (int i = 0; i < contaPesos; i++) {
+    if (i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
+      Serial.print(pesos[i], 3);
+      Serial.print(", ");
     }
-    Serial.println();
+  }
+  Serial.print("\n");
 
-    // descartando valores maiores que 80% do valor de referencia
-    int idxMuitoDiferenteValor[PESOS_SIZE];
-    int contaMuitoDiferenteValor = 0;
-    memset(idxMuitoDiferenteValor, -1, PESOS_SIZE);
-    for (int i = 0; i < PESOS_SIZE; i++) {
-      if (muitoDiferenteValor == 0.0 && i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
-        Serial.print("muitoDiferenteValor1: "); Serial.println(pesos[i]); 
-        muitoDiferenteValor = pesos[i];
-      }
-      else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE_MAIOR)) < pesos[i]) {
-        if (contaMuitoDiferenteValor < (PESOS_SIZE - 1)) {
-          Serial.print("descartando 80%: "); Serial.println(pesos[i]);
-          idxMuitoDiferenteValor[contaMuitoDiferenteValor++] = i;
-        }
-      }
-    }
-
-    // descartando valores menores que 20% do valor de referencia
-    int idxMuitoDiferenteValorMenor[PESOS_SIZE];
-    int contaMuitoDiferenteValorMenor = 0;
-    memset(idxMuitoDiferenteValorMenor, -1, PESOS_SIZE);
-    for (int i = 0; i < PESOS_SIZE; i++) {
-      if (muitoDiferenteValor == 0.0 && i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
-         Serial.print("muitoDiferenteValor: "); Serial.println(pesos[i]);
-         muitoDiferenteValor = pesos[i];
-      }
-      else if ((muitoDiferenteValor * (1 + PORCENTO_CORTE_MENOR)) > pesos[i]) {
-        if (contaMuitoDiferenteValorMenor < (PESOS_SIZE - 1)) {
-          Serial.print("descartando 20%:"); Serial.println(pesos[i]);
-          idxMuitoDiferenteValorMenor[contaMuitoDiferenteValorMenor++] = i;
-        }
-      }
-    }
-
-    // Computando a media
-    float soma = 0.0;
-    int qtde = 0;
-    for (int i = 0; i < PESOS_SIZE; i++) {
-
-      // Verificando por valores muito diferentes
-      bool mustContinue = false;
+  // descartando valores maiores que 80% do valor de referencia
+  int idxMuitoDiferenteValor[PESOS_SIZE];
+  int contaMuitoDiferenteValor = 0;
+  memset(idxMuitoDiferenteValor, -1, PESOS_SIZE);
+  for (int i = 0; i < PESOS_SIZE; i++) {
+    if (muitoDiferenteValor == 0.0 && i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
+      //Serial.print("muitoDiferenteValor1: %.3f", pesos[i]);
+      Serial.print("muitoDiferenteValor1: ");
+      Serial.print(pesos[i], 3);
       
-      // Maiores que 80%
-      for (int j = 0; j < contaMuitoDiferenteValor; j++) {
-        if (idxMuitoDiferenteValor[j] == i) {
-          mustContinue = true;
-          break;
-        }
-      }
-      if (mustContinue) continue;
-
-      // Menores que 20%
-      for (int j = 0; j < contaMuitoDiferenteValorMenor; j++) {
-        if (idxMuitoDiferenteValorMenor[j] == i) {
-          mustContinue = true;
-          break;
-        }
-      }
-      if (mustContinue) continue;
-      
-      if (i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
-         soma += pesos[i];
-         qtde++;
+      muitoDiferenteValor = pesos[i];
+    }
+    else if (muitoDiferenteValor != 0.0 && (muitoDiferenteValor * (1 + PORCENTO_CORTE_MAIOR)) < pesos[i]) {
+      if (contaMuitoDiferenteValor < (PESOS_SIZE - 1)) {
+        Serial.print("descartando 80%: ");
+        Serial.print(pesos[i], 3);
+        idxMuitoDiferenteValor[contaMuitoDiferenteValor++] = i;
       }
     }
+  }
 
-    // valores usados para computar a média
-    Serial.print(F("Valores utilizados para computar a média: "));
-    for (int i = 0; i < PESOS_SIZE; i++) {
-      if (i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
-         Serial.print(pesos[i], 3);
-         Serial.print(F(", "));
+  // descartando valores menores que 20% do valor de referencia
+  int idxMuitoDiferenteValorMenor[PESOS_SIZE];
+  int contaMuitoDiferenteValorMenor = 0;
+  memset(idxMuitoDiferenteValorMenor, -1, PESOS_SIZE);
+  for (int i = 0; i < PESOS_SIZE; i++) {
+    if (muitoDiferenteValor == 0.0 && i != idxMenorValor && i != idxMaiorValor && pesos[i] > PESO_MINIMO) {
+      //Serial.print("muitoDiferenteValor: %.3f", pesos[i]);
+      Serial.print("muitoDiferenteValor: ");
+        Serial.print(pesos[i], 3);
+      muitoDiferenteValor = pesos[i];
+    }
+    else if (muitoDiferenteValor != 0.0 && (muitoDiferenteValor * (1 - PORCENTO_CORTE_MENOR)) > pesos[i]) {
+      if (contaMuitoDiferenteValorMenor < (PESOS_SIZE - 1)) {
+        Serial.print("descartando 20%: ");
+        Serial.print(pesos[i], 3);
+        //Serial.print("descartando 20%: %.3f", pesos[i]);
+        idxMuitoDiferenteValorMenor[contaMuitoDiferenteValorMenor++] = i;
       }
     }
-    Serial.println();
+  }
 
-    // Media final
-    float media = 0.0;
+  // Computando a media
+  float soma = 0.0;
+  int qtde = 0;
+  for (int i = 0; i < PESOS_SIZE; i++) {
 
-    if (qtde > 0) {
-      media = (float)(soma / qtde);
+    // Verificando por valores muito diferentes
+    bool mustContinue = false;
+
+    // Maiores que 80%
+    for (int j = 0; j < contaMuitoDiferenteValor; j++) {
+      if (idxMuitoDiferenteValor[j] == i) {
+        mustContinue = true;
+        break;
+      }
     }
+    if (mustContinue) continue;
+
+    // Menores que 20%
+    for (int j = 0; j < contaMuitoDiferenteValorMenor; j++) {
+      if (idxMuitoDiferenteValorMenor[j] == i) {
+        mustContinue = true;
+        break;
+      }
+    }
+    if (mustContinue) continue;
+
+    if (i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
+      soma += pesos[i];
+      qtde++;
+    }
+  }
+
+  // valores usados para computar a média
+  Serial.print("Valores utilizados para computar a média: ");
+  for (int i = 0; i < PESOS_SIZE; i++) {
+    if (i != menorValor && i != maiorValor && pesos[i] > PESO_MINIMO) {
+      Serial.print(pesos[i], 3);
+      Serial.print(", ");
+    }
+  }
+  Serial.print("\n");
+
+  // Media final
+  float media = 0.0;
+
+  if (qtde > 0) {
+    media = (float)(soma / qtde);
+  }
 
     // Monta mensagem serial
     String  sSerial = "pe=";
