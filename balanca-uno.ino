@@ -478,6 +478,9 @@ void loop() {
   if (qtde > 0) {
     media = (float)(soma / qtde);
   }
+  else {
+    media = muitoDiferenteValor;
+  }
 
     // Monta mensagem serial
     String  sSerial = "pe=";
