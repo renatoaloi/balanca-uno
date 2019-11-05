@@ -479,7 +479,7 @@ void loop() {
     media = (float)(soma / qtde);
   }
   else {
-    media = muitoDiferenteValor;
+    media = 0.0;
   }
 
     // Monta mensagem serial
